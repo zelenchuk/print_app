@@ -1,16 +1,15 @@
-# Print app (python)
-
+# Print app
 
 ## Tutorial
+```
+git clone https://github.com/zelenchuk/print_app.git
 
-### 1. `git clone https://github.com/zelenchuk/print_app.git`
+cd print_app
 
-### 2. `cd print_app`
+env\Scripts\activate
 
-### 3. `env\Scripts\activate`
+pip install -r requirements.txt
 
-### 4. `pip install -r requirements.txt`
-
-### 5. `pyinstaller -F app.py --windowed`
-
-### 6. Enjoy
+pyinstaller -F app.py --windowed
+```
+### Enjoy
