@@ -1,2 +1,3 @@
-# print_app
-Print app
+# Программа для подсчета напечатанных символов
+
+pyinstaller -F app.py --windowed
