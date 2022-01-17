@@ -8,25 +8,28 @@ import tkinter.scrolledtext as scrolledtext
 
 
 async def start_timer(label_filename, txt_edit):
-    """ функция которая выполниться асинхронно в отдельном процессе """
+    """ async функция которая выполниться асинхронно в отдельном процессе """
 
-    txt_edit.focus_set()
+    txt_edit.focus_set()  # фокус на текстовое поле, чтобы человек мог сразу печатать
+    txt_edit.configure(state='normal')  # активировать текстовое поле
 
-    for i in range(0, 10):
-        label_filename.config(text=i, font=("Calibri", 44))
-        # print("Hello World!" + str(i))
-        await asyncio.sleep(1.0)
+    # цикл отсчитывает кол-во секунд, через которые закончиться испытание
+    for i in range(0, 120):
+        label_filename.config(text=i, font=("Calibri", 50))  # отображение таймера и его стили
+        await asyncio.sleep(1.0)  # спать 1 секунду
 
-    result_text = txt_edit.get(1.0, tk.END)
+    result_text = txt_edit.get(1.0, tk.END)  # получаем результирующий напечатанный текст
 
-    print("You typed: ", result_text)
-    print("Symbols: ", len(result_text))
+    # print("You typed: ", result_text)
+    # print("Symbols: ", len(result_text))
 
-    txt_edit.delete(1.0, tk.END)  # Очищаю тект txt_edit
-    label_filename.config(text='')  # Очищаю тект метки, после того как время выйдет
+    txt_edit.delete(1.0, tk.END)  # Очищаю напечатанный текст в txt_edit
+    label_filename.config(text='')  # Очищаю текст метки (таймера), после того как время выйдет
 
-    messagebox.showinfo(message='Время вышло! Ты молодец!')
-    messagebox.showinfo(message='Ты напечатал {} знаков за 120 секунд'.format(len(result_text.replace(" ", "")) - 1))
+    messagebox.showinfo(message='Время вышло! Ты завершил испытание!')
+
+    result_text = len(result_text.replace(" ", "")) - 1
+    messagebox.showinfo(message='Ты напечатал {} знаков за 120 секунд'.format(result_text))
 
 
 def _asyncio_thread(async_loop, label_filename, txt_edit):
@@ -36,15 +39,13 @@ def _asyncio_thread(async_loop, label_filename, txt_edit):
 
 def do_tasks(async_loop, label_filename, txt_edit):
     """ Button-Event-Handler starting the asyncio part. """
+
+    # https://devpractice.ru/python-lesson-22-concurrency-part-1/ TODO прочитать и разобраться с is_alive()
     threading.Thread(target=_asyncio_thread, args=(async_loop, label_filename, txt_edit)).start()
 
 
 def save_current_file(event=False):
     messagebox.showinfo(message='Файл сохранен (фейк)')
-
-
-def start():
-    elapsed_time = time.time() - start_var
 
 
 def run_by_hot_key(async_loop, label_filename, txt_edit, event=None):
@@ -62,7 +63,8 @@ def main(async_loop):
     # implementing scrollbar functionality
     scrollbar = tk.Scrollbar(window)
 
-    txt_edit = scrolledtext.ScrolledText(window, undo=True)  # add scrolledtext and ctrl + Z functionality
+    # add scrolledtext and ctrl + Z functionality
+    txt_edit = scrolledtext.ScrolledText(window, undo=True, wrap=tk.WORD, width=40, state='disabled', height=10, )
     fr_buttons = tk.Frame(window, relief=tk.RAISED, bd=2)
 
     btn_do_tasks = tk.Button(fr_buttons, text="Начать", command=lambda: do_tasks(async_loop, label_filename, txt_edit))
@@ -82,7 +84,7 @@ def main(async_loop):
     myFont = font.Font(family='Helvetica', size=25)
     txt_edit['font'] = myFont  # установил шрифт и размеры для текстового поля
 
-    # Создаем слушаетель комбинации клавиш для старта процесса.
+    # Создаем слушатель комбинации клавиш для старта процесса. TODO комбинация работает только на русской раскладке
     # передаю локальные переменные интерфейса, включая параметр event от метода .bind()
     window.bind('<Control-s>', lambda event: run_by_hot_key(async_loop, label_filename, txt_edit))
 
@@ -93,6 +95,6 @@ def main(async_loop):
 
 
 if __name__ == '__main__':
-    async_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(async_loop)
-    main(async_loop)
+    async_loop = asyncio.new_event_loop()  # Запускаю асинхронный цикл событий
+    asyncio.set_event_loop(async_loop)  # Устанавливаю его как "основной асинхронный цикл"
+    main(async_loop)  # Запуск основного цикла программы и передаю аргументом асинхронный цикл
